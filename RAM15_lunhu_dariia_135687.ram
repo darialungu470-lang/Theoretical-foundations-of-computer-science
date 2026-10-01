@@ -1,0 +1,120 @@
+// Uloha je 15
+// Uloha. Cisla su spriatelne ?
+
+// R1 -> 1. cislo ( A )
+// R2 -> 2. cislo ( B )
+// R3 -> i (pomocna premenna, pomocou nej preberame vsetky cisla, krote su kandidatami na delitele)
+// R4 -> suma delitelov 1. cisla ( A )   (sumA)
+// R5 -> suma delitelov 2. cisla ( B )   (sumB)
+
+
+// nacitame cisla zo vstupu
+read 1           // v R1 ( A )
+read 2           // v R2 ( B )
+// +2 k zlozitosti
+
+// hladame polovicu od prveho cisla
+load 1         // nacitame obsah R1 do ACC -> ACC = R1
+jzero bad      // ak 1. cislo je 0, prejdeme do "bad" a skoncime nas program (na vystupe 0)
+div =2         // podelime 2 obsah ACC -> ACC = ACC/2
+store 3        // uchovame obsah ACC v R3 -> R3 = ACC     (nase cislo i)
+// +4 k zlozitosti
+
+loopA:         // overenie ci nase cislo i je delitelom A    ( i|A ?)
+load 1         // nacitame R1 do ACC -> ACC = R1
+div 3          // podelime -> ACC = ACC/R3
+mul 3          // nasobenie -> ACC = ACC*R3
+sub 1          // odcitame 1 od ACC -> ACC = ACC-1
+jzero pridatA  // ak ano, pridame i do koncovej sumy pre cislo A
+jump dalejA    // ak nie, preskocime proces "pridatA", a priamo pokrocujeme v "dalejA"
+// + 5n k zlozitosti
+
+pridatA:       // pridavame i do celkkovej sumy pre cislo A  (sumA = sumA + i)
+load 3         // nacitame R3 do ACC -> ACC = R3
+add 4          // pridame R4 do ACC -> ACC = ACC + R4
+store 4        // ucovame obsah ACC do R4 -> R4 = ACC
+// +3x k zlozitosti (mame x, lebo nevieme kolko bude dopredu delitelov)
+
+dalejA:        // dekrementujeme nase cislo i    ( --i )
+load 3         // nacitame R3 do ACC -> ACC = R3
+sub =1         // odpocitame 1 od ACC -> ACC = ACC - 1
+store 3        // uchovame obsah ACC v R3 -> R3 = ACC   (uchovame nase nove i)
+jzero koniec_A      // ak i = 0, skoncime cyklus pre cislo A a prejdeme do cisla B
+jump loopA          // ak i != 0, nas cylus pokracuje z zaciatku
+// +4n k zlozitosti
+
+
+koniec_A:    // spravime tie iste manipulacie s cislom B
+// hladame polovicu 2. cisla
+load 2
+jzero bad     // ak 2. cislo je 0, skoncime prejdeme do "bad" a skoncime nas program (na vystupe 0)
+div =2
+store 3       // uchovame i (nove pre cislo B)
+// +4 r zlozitosti
+
+loopB:       // overujeme ci i je delitelom cisla B ( i|B ?)
+load 2
+div 3
+mul 3
+sub 2
+jzero pridatB   // ak ano, pridame i do sumB
+jump dalejB     // ak nie, preskocime priamo do 'dalejB'
+// +5m k zlozitosti
+
+pridatB:  // pridavame i do sumB    (sumB = sumB + i)
+load 3
+add 5
+store 5
+// + 3y k zlozitosti (mame y, lebo nevieme kolko bude dopredu delitelov)
+
+
+dalejB:   // dekrementujeme i
+load 3
+sub =1
+store 3
+jzero koniec_B    // ak i = 0, nas cyklud skonci
+jump loopB        // ak i != 0, cyklus pokracuje
+// +4n k zlozitosti
+
+// dalej porovnavame sumA a sumB (sumA == B ? , sumB == A ?)
+
+koniec_B:        // nazaciatku overime to 1. cislo         
+load 1           // nacitame R1 do ACC -> ACC = R1
+sub 5            // odpocitame R5 od ACC -> ACC = ACC - R5
+jzero pre_B      // ak to je 0 (teda A == sumB), mame sansu, ze cisla su spriatelne, a preskocime do 'pre_B' 
+// + 2 alebo 3 // vyberiem max -> 3 (ale tuto konstantu v skutocnosto na konci odstranime )
+
+bad:          // ak cisla nie su spriatelne, na vystupe dame '0'
+load =0       // nacitame 0 do ACC -> ACC = 0
+write 0       // vypiseme obsah ACC na vystup (teda '0')
+halt          // Parada!!!!! Program je oficialne skonceny a cisla nie su spriatelne
+// +3 k zlozitosti (ale iba v ak cisla nie su sprijatelne)
+
+pre_B:        // overime 2. cislo
+load 2        // nacitame R2 do ACC -> ACC = R2
+sub 4         // odpocitame R4 od ACC -> ACC = ACC - R4
+jzero super   // ak je to 0, otvarajte sampane, cisla su spriatelne, preskocime do 'super'
+jump bad      // opacne, cisla nie su spriatelne, preskocime do 'super'
+// +3 k zlozitosti
+
+super:        // ak cisla su spriatelne, na vystup vypiseme '1'
+load =1       // nacitame 1 do ACC -> ACC = 1
+write 0       // vypiseme obsah ACC na vystup (teda '1')
+halt          // Parada!!!!! Program je oficialne uspesne skonceny a cisla su spriatelne
+// +3 k zlozitosti, ak cisla su spriatelne
+
+// Jednotkova casova zlozitost tohto programu
+// n je 1. cyklus, m je 2. ceklus
+// 2 + 4 + 5n + 3x + 4n + 4 + 5m + 3y + 4n + 3 + 3 + 3 = 5n + 5m + 3x + 3y + 19
+// x a y su opakovania prikazov ktore pridaju cislo(i) k sume, ak cislo je delitelom
+// urcite ono bude mensie ako n alebo m, x < n, y < m, preto mozeme ich odstranit zo vsetkymi konstantami
+// potom nam vychadz O(n + m), ak chceme zjednidusit teda O(max(n, m)).
+// Toto pomohlo mi vypocitat zlozitost:
+// https://www.cs.vsb.cz/kot/download/uti2014/uti-12-cz.pdf
+
+// ChatGPT voobec mi tu nepomohol, lebo on nevie. 
+// Alebo sa mi jednoducho nechcelo sedieť s ním a búchať hlavou o stenu, vysvetľujúc mu zadanie 100–50-krát. 
+// Bolo pre mňa jednoduchšie spraviť to sama za 2–2,5 hodiny. Možno len neviem používať AI v tejto oblasti tak, 
+// ako ostatní, ktorým to fungovalo úplne perfektne. Navyše nemám rada prehrabávať sa a rozoberať cudzí kód, 
+// jednoduchšie je napísať si vlastný.
+

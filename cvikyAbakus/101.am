@@ -1,0 +1,24 @@
+// if i > j + 2: 
+
+a1a1a1a1a1
+a2a2
+
+(a3 a0 s1)1 (a1 s0)0
+(s3 a0 s2)2 (a2 s0)0
+s3s3
+
+(a7 a0 s3)3 (a3 s0)0
+
+(
+	(s3)3 
+	(a4a4a4a4a4 a0 s1)1 (a1 s0)0
+	a4a4a4
+	(a5a5 a0 s2)2 (a2 s0)0
+	(s4 s5)5
+
+)3
+
+a6
+(s6 a0 s7)7 (a7 s0)0
+(a4 s6)6
+// vysledok v R4
